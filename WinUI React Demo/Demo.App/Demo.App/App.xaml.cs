@@ -5,7 +5,8 @@ namespace Demo.App;
 public partial class App : Application
 {
     private Window? _mainWindow;
-    private SimpleHttpServer? _server;
+    private SimpleHttpServer? _httpServer;
+    private SimpleApiServer? _apiServer;
 
     public App()
     {
@@ -17,9 +18,13 @@ public partial class App : Application
         _mainWindow = new MainWindow();
         _mainWindow.Activate();
 
-        _server = new SimpleHttpServer(["http://localhost:8080/"]);
-        _server.Start();
+        _httpServer = new SimpleHttpServer(["http://localhost:8080/"]);
+        _httpServer.Start();
 
-        _mainWindow.Closed += (_, _) => _server.Dispose();
+        _apiServer = new SimpleApiServer();
+        _apiServer.Start();
+
+        _mainWindow.Closed += (_, _) => _httpServer.Dispose();
+        _mainWindow.Closed += (_, _) => _apiServer.Dispose();
     }
 }
