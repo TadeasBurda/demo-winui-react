@@ -5,6 +5,7 @@ import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+  const [message, setMessage] = useState("")
 
   return (
     <>
@@ -28,8 +29,22 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+      <button onClick={() => handleClickMe()}>Click me!</button>
+      {message && <div>{message}</div>}
     </>
   )
+
+  async function handleClickMe() {
+    //fetch("http://localhost:5000/").then((res) => res.text()).then(setMessage)
+    try {
+      const res = await fetch("http://localhost:5000/")
+      const text = await res.json()
+      setMessage(text.message)
+    }
+    catch (error) {
+      alert(error)
+    }
+  }
 }
 
 export default App
