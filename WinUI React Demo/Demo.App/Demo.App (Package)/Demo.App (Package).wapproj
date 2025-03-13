@@ -68,4 +68,24 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250228001" />
   </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
+
+	<!-- Build client and copy output -->
+	<Target Name="BuildClientAndCopyOutput" BeforeTargets="Build">
+		<!-- Build the demo.client.esproj project -->
+		<MSBuild Projects="..\..\demo.client\demo.client.esproj" Targets="Build" Properties="Configuration=$(Configuration)" />
+
+		<!-- Remove contents of wwwroot directory if it exists -->
+		<RemoveDir Directories="..\Demo.App\wwwroot" Condition="Exists('..\Demo.App\wwwroot')" />
+
+		<!-- Create wwwroot directory if it doesn't exist -->
+		<MakeDir Directories="..\Demo.App\wwwroot" Condition="!Exists('..\Demo.App\wwwroot')" />
+
+		<!-- Define the DistFiles item group -->
+		<ItemGroup>
+			<DistFiles Include="..\..\demo.client\dist\**\*" />
+		</ItemGroup>
+
+		<!-- Copy contents from /dist to wwwroot -->
+		<Copy SourceFiles="@(DistFiles)" DestinationFolder="..\Demo.App\wwwroot\%(DistFiles.RecursiveDir)" />
+	</Target>
 </Project>
