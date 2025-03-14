@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Demo.App;
 
@@ -14,52 +14,49 @@ public record Response()
 
 public sealed partial class SimpleApiServer : IDisposable
 {
-    private WebApplication? _host;
-    private Task? _serverTask;
-    private readonly CancellationTokenSource _cts = new();
+    private readonly CancellationTokenSource _cts = new ();
+    private readonly Task _task;
+    private readonly WebApplication _host;
 
-    internal void Start()
+    internal SimpleApiServer()
     {
-        _serverTask = Task.Run(() =>
-        {
-            var builder = WebApplication.CreateBuilder();
+        var builder = WebApplication.CreateBuilder();
 
-            // Add CORS services
-            builder.Services.AddCors(options =>
+        // Add CORS services
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(policy =>
             {
-                options.AddDefaultPolicy(policy =>
-                {
-                    policy.AllowAnyOrigin()
-                          .AllowAnyMethod()
-                          .AllowAnyHeader();
-                });
+                policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
             });
-
-            var app = builder.Build();
-
-            // Use CORS middleware
-            app.UseCors();
-
-            app.MapGet("/", () => new Response() { Message = "Hello from Minimal API in WinUI 3!" });
-
-            _host = app;
-            _host.RunAsync(_cts.Token).Wait();
         });
-    }
 
-    internal void Stop()
-    {
-        if (_host != null)
-        {
-            _cts.Cancel();
-            _host.StopAsync().Wait();
-        }
+        _host = builder.Build();
+
+        // Use CORS middleware
+        _host.UseCors();
+
+        _host.MapGet(
+            "/",
+            () => new Response() { Message = "Hello from Minimal API in WinUI 3!" }
+        );
+
+        _task = _host.RunAsync(_cts.Token);
     }
 
     public void Dispose()
     {
-        Stop();
-        _serverTask?.Dispose();
+        _cts.Cancel();
+        try
+        {
+            _task.Wait();
+        }
+        catch (AggregateException ex)
+        {
+            ex.Handle(e => e is TaskCanceledException);
+        }
+
         _cts.Dispose();
+        _host.DisposeAsync().AsTask().Wait();
     }
 }
