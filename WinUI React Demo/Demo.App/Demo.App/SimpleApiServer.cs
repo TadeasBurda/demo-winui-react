@@ -14,7 +14,7 @@ public record Response()
 
 public sealed partial class SimpleApiServer : IDisposable
 {
-    private readonly CancellationTokenSource _cts = new ();
+    private readonly CancellationTokenSource _cts = new();
     private readonly Task _task;
     private readonly WebApplication _host;
 
@@ -31,15 +31,17 @@ public sealed partial class SimpleApiServer : IDisposable
             });
         });
 
+        builder.Services.AddSignalR();
+        builder.Services.AddHostedService<PingWorker>();
+
         _host = builder.Build();
 
         // Use CORS middleware
         _host.UseCors();
 
-        _host.MapGet(
-            "/",
-            () => new Response() { Message = "Hello from Minimal API in WinUI 3!" }
-        );
+        _host.MapHub<PingHub>(PingHub.Path);
+
+        _host.MapGet("/", () => new Response() { Message = "Hello from Minimal API in WinUI 3!" });
 
         _task = _host.RunAsync(_cts.Token);
     }

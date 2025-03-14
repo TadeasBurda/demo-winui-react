@@ -1,11 +1,35 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { HubConnectionBuilder } from '@microsoft/signalr'
 
 function App() {
   const [count, setCount] = useState(0)
   const [message, setMessage] = useState("")
+  const [pingMessage, setPingMessage] = useState("")
+
+  useEffect(() => {
+    const connection = new HubConnectionBuilder()
+      .withUrl('http://localhost:5000/ping', { withCredentials: false })
+      .withAutomaticReconnect()
+      .build();
+
+    connection.start()
+      .then(() => {
+        console.log("Connection started!");
+      }).catch((error) => {
+        console.error("Error: " + error);
+      });
+
+    connection.on("Ping", (response) => {
+      setPingMessage(response.message);
+    });
+
+    return () => {
+      connection.stop();
+    };
+  }, []);
 
   return (
     <>
@@ -29,6 +53,7 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+      <div>Ping: {pingMessage}</div>
       <button onClick={() => handleClickMe()}>Click me!</button>
       {message && <div>{message}</div>}
     </>
