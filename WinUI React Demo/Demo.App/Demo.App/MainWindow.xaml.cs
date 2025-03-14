@@ -17,6 +17,9 @@ public sealed partial class MainWindow : Window
 
     private void MainWindow_Closed(object _, WindowEventArgs __)
     {
+        _webView2.Source = null;
+        _webView2.Close();
+
         _httpServer.Dispose();
         _apiServer.Dispose();
     }
