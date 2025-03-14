@@ -22,7 +22,6 @@ public partial class App : Application
         _httpServer.Start();
 
         _apiServer = new SimpleApiServer();
-        _apiServer.Start();
 
         _mainWindow.Closed += (_, _) =>
         {
