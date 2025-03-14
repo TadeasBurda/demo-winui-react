@@ -18,13 +18,16 @@ public partial class App : Application
         _mainWindow = new MainWindow();
         _mainWindow.Activate();
 
-        _httpServer = new SimpleHttpServer(["http://localhost:8080/"]);
+        _httpServer = new SimpleHttpServer();
         _httpServer.Start();
 
         _apiServer = new SimpleApiServer();
         _apiServer.Start();
 
-        _mainWindow.Closed += (_, _) => _httpServer.Dispose();
-        _mainWindow.Closed += (_, _) => _apiServer.Dispose();
+        _mainWindow.Closed += (_, _) =>
+        {
+            _httpServer.Dispose();
+            _apiServer.Dispose();
+        };
     }
 }
