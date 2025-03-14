@@ -1,23 +1,21 @@
 using Microsoft.UI.Xaml;
+using System;
 
 namespace Demo.App;
 
 public sealed partial class MainWindow : Window
 {
-    private readonly SimpleHttpServer _httpServer;
-    private readonly SimpleApiServer _apiServer;
+    private readonly SimpleHttpServer _httpServer = new();
+    private readonly SimpleApiServer _apiServer = new();
 
     public MainWindow()
     {
         InitializeComponent();
 
-        _httpServer = new SimpleHttpServer();
-        _httpServer.Start();
-
-        _apiServer = new SimpleApiServer();
+        _webView2.Source = new Uri(SimpleHttpServer.BASE_URL);
     }
 
-    private void MainWindow_Closed(object sender, WindowEventArgs e)
+    private void MainWindow_Closed(object _, WindowEventArgs __)
     {
         _httpServer.Dispose();
         _apiServer.Dispose();

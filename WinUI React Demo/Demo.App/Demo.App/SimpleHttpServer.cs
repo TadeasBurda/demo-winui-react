@@ -6,25 +6,20 @@ namespace Demo.App;
 
 internal sealed partial class SimpleHttpServer : IDisposable
 {
+    public const string BASE_URL = "http://localhost:8080/";
+
     private bool _isStopping = false;
     private HttpListener? _listener;
 
-    internal void Start()
+    internal SimpleHttpServer()
     {
         _listener = new HttpListener();
-        _listener.Prefixes.Add("http://localhost:8080/");
+        _listener.Prefixes.Add(BASE_URL);
 
         _isStopping = false;
 
         _listener.Start();
         _listener.BeginGetContext(OnContext, null);
-    }
-
-    internal void Stop()
-    {
-        _isStopping = true;
-        _listener?.Stop();
-        _listener = null;
     }
 
     private static string GetPath(string path)
@@ -88,7 +83,8 @@ internal sealed partial class SimpleHttpServer : IDisposable
 
     public void Dispose()
     {
-        Stop();
+        _isStopping = true;
+        _listener?.Stop();
         _listener = null;
     }
 }

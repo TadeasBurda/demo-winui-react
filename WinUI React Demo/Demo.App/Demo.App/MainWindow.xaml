@@ -7,8 +7,9 @@
   xmlns:local="using:Demo.App"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   Title="Demo.App"
+  Closed="MainWindow_Closed"
   mc:Ignorable="d">
   <Grid>
-    <WebView2 Source="http://localhost:8080" />
+    <WebView2 x:Name="_webView2" />
   </Grid>
 </Window>
